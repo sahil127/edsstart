@@ -1,0 +1,11 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Prevent indexing of draft, admin, or search result paths
+Disallow: /drafts/
+Disallow: /tools/
+Disallow: /search
+
+# Location of your generated XML sitemap
+Sitemap: http://localhost:3000/sitemap.xml
