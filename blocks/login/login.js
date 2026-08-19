@@ -10,7 +10,7 @@ export default async function decorate(block) {
       password: form.elements.password.value,
     };
 
-    const res = await fetch('http://localhost:3000/api/login', {
+    const res = await fetch('http://localhost:3001/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

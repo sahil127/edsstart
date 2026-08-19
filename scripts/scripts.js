@@ -169,6 +169,13 @@ async function loadEager(doc) {
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
 
+  if (window.location.hostname === 'localhost') {
+    const meta = document.createElement('meta');
+    meta.name = 'urn:adobe:aue:config:service';
+    meta.content = 'https://localhost:8000';
+    document.head.append(meta);
+  }
+
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {

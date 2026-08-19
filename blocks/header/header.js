@@ -1,5 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
+import { getAccessToken, logout } from '../../scripts/auth.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
@@ -113,6 +114,64 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+
+  const token = getAccessToken();
+  const isLoggedIn = Boolean(token);
+
+const processHeaderLinks = () => {
+    const allLinks = block.querySelectorAll('a, u');
+    console.log('--- Found Header Links ---', allLinks);
+
+    if (allLinks.length === 0) return false;
+
+    const token = getAccessToken();
+    const isLoggedIn = Boolean(token);
+
+    allLinks.forEach((element) => {
+      // Clean up empty anchor tags (<a title=""></a>)
+      if (element.tagName.toLowerCase() === 'a' && !element.textContent.trim()) {
+        element.remove();
+        return;
+      }
+
+      const text = element.textContent.trim().toLowerCase();
+      const parentP = element.closest('p') || element;
+
+      if (isLoggedIn) {
+        if (text.includes('login')) {
+          parentP.style.display = 'none';
+        }
+        if (text.includes('logout')) {
+          parentP.style.cursor = 'pointer';
+          element.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+          });
+        }
+      } else {
+        if (text.includes('logout')) {
+          parentP.style.display = 'none';
+        }
+        if (text.includes('page') || text.includes('document')) {
+          parentP.style.display = 'none';
+        }
+      }
+    });
+
+    return true;
+  };
+
+  // 1. Try processing immediately (if HTML is already present)
+  if (!processHeaderLinks()) {
+    // 2. If not ready, observe the block until elements are injected
+    const observer = new MutationObserver((mutations, obs) => {
+      if (processHeaderLinks()) {
+        obs.disconnect(); // Stop observing once links are processed
+      }
+    });
+
+    observer.observe(block, { childList: true, subtree: true });
+  }
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
@@ -168,4 +227,6 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+
 }

@@ -19,3 +19,81 @@
   padding: 8px 12px;
   font-size: 16px;
 }
+
+/* Container Card */
+main .form-wrapper {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eaeaea;
+}
+
+/* Form Layout */
+main .form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Field Wrappers */
+main .form .field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+/* Labels */
+main .form label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* Inputs, Textareas, and Selects */
+main .form input,
+main .form textarea,
+main .form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f9fafb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+main .form input:focus,
+main .form textarea:focus,
+main .form select:focus {
+  outline: none;
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Submit Button */
+main .form button[type="submit"] {
+  margin-top: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+main .form button[type="submit"]:hover {
+  background-color: #1d4ed8;
+}
+
+main .form button[type="submit"]:active {
+  transform: scale(0.98);
+}

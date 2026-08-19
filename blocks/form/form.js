@@ -1,3 +1,33 @@
+const FORM_ENDPOINTS = {
+  login: 'http://localhost:3001/api/login',
+  signup: 'http://localhost:3001/api/signup',
+  support: 'http://localhost:3001/api/tickets',
+  'create-ticket': 'http://localhost:3001/api/create-ticket',
+  contact: 'http://localhost:3001/api/contact',
+};
+
+const SUCCESS_HANDLERS = {
+  login: (result) => {
+    if (result.token) localStorage.setItem('authToken', result.token);
+    alert('Login successful!');
+    window.location.href = '/dashboard';
+  },
+  signup: () => {
+    alert('Account created! Please log in.');
+    window.location.href = '/login/login';
+  },
+  'create-ticket': () => {
+    alert('Ticket created! Please check your email for confirmation.');
+    window.location.href = '/tickets';
+  },
+  support: (result) => {
+    alert(`Support ticket created! Reference: ${result.ticketKey}`);
+  },
+  default: () => {
+    alert('Form submitted successfully!');
+  },
+};
+
 export default async function decorate(block) {
   const formLink = block.querySelector('a');
   if (!formLink) return;
@@ -8,12 +38,22 @@ export default async function decorate(block) {
   const json = await resp.json();
 
   const form = document.createElement('form');
-  
+
+  // Detect form variant from block classes, form JSON URL, or page pathname
+  const formType = Object.keys(FORM_ENDPOINTS).find((type) =>
+    block.classList.contains(type) || 
+    formUrl.includes(type) || 
+    window.location.pathname.includes(type)
+  ) || 'default';
+
+  console.log(`--- Form Type Detected: ${formType} ---`);
+
+  // Build inputs dynamically from JSON sheet
   json.data.forEach((field) => {
     const wrapper = document.createElement('div');
     wrapper.className = `field-wrapper ${field.Type}-wrapper`;
 
-    if (field.Label) {
+    if (field.Label && field.Type !== 'submit') {
       const label = document.createElement('label');
       label.textContent = field.Label;
       wrapper.appendChild(label);
@@ -48,56 +88,39 @@ export default async function decorate(block) {
     wrapper.appendChild(input);
     form.appendChild(wrapper);
   });
-  const isLoginForm = block.classList.contains('login') || formUrl.includes('login');
+
+  // Unique submission handler per form type
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    const formData = new FormData(form);
-    const payload = Object.fromEntries(formData.entries());
-
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
-    try {
-      // Dynamic endpoint selection depending on form type
-      const API_ENDPOINT = isLoginForm 
-        ? 'http://localhost:3001/api/login' 
-        : 'http://localhost:3001/api/user-information';
+    const payload = Object.fromEntries(new FormData(form).entries());
+    const endpoint = FORM_ENDPOINTS[formType] || 'http://localhost:3001/api/default';
 
-      const response = await fetch(API_ENDPOINT, {
+    try {
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const result = await res.json();
 
-      if (response.ok) {
-        if (isLoginForm) {
-          // 1. Store the authentication token
-          if (result.token) {
-            localStorage.setItem('authToken', result.token);
-          }
-          
-          alert('Login successful!');
-          
-          // 2. Redirect user to dashboard/home page after login
-          window.location.href = '/dashboard'; 
-        } else {
-          alert('Form submitted successfully!');
-          form.reset();
-        }
+      if (res.ok) {
+        const handleSuccess = SUCCESS_HANDLERS[formType] || SUCCESS_HANDLERS.default;
+        handleSuccess(result);
+        form.reset();
       } else {
         alert(`Error: ${result.error || 'Submission failed'}`);
       }
     } catch (err) {
       console.error('Submission error:', err);
-      alert('Unable to connect to backend server.');
+      alert('Unable to connect to backend service.');
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
   });
-  block.appendChild(form);
+
+  block.replaceChildren(form);
 }

@@ -323,3 +323,46 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+
+main .section.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* 2. Center the form element and set a readable width */
+main .section.center .form-wrapper,
+main .section.center form {
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* 3. Center inputs, buttons, and field wrappers */
+main .section.center form > div,
+main .section.center .field-wrapper {
+  width: 100%;
+  max-width: 400px; /* Adjust field width as needed */
+}
+
+main .section.center .form-wrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Left-aligns labels and field wrappers inside the centered box */
+main .section.center form .field-wrapper,
+main .section.center form label {
+  text-align: left;
+  display: block;
+}
+
+/* Makes input fields fill the container box evenly */
+main .section.center form input {
+  width: 100%;
+  box-sizing: border-box;
+}
