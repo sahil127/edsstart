@@ -1,5 +1,6 @@
 import { authFetch } from '../../scripts/auth.js';
 
+
 const API_BASE = 'http://localhost:3001/api';
 
 /**
@@ -100,13 +101,13 @@ export default async function decorate(block) {
   const firstInitial = (getProfileValue(userData, 'firstName') || 'U')[0].toUpperCase();
   const header = document.createElement('div');
   header.className = 'profile-header';
-  header.innerHTML = `
-    <div class="profile-avatar">${firstInitial}</div>
-    <div class="profile-header-info">
-      <h2>Edit Profile</h2>
-      <p>${getProfileValue(userData, 'email') || ''}</p>
-    </div>
-  `;
+  // header.innerHTML = `
+  //   <div class="profile-avatar">${firstInitial}</div>
+  //   <div class="profile-header-info">
+  //     <h2>Edit Profile</h2>
+  //     <p>${getProfileValue(userData, 'email') || ''}</p>
+  //   </div>
+  // `;
   block.appendChild(header);
 
   // Status message
@@ -157,26 +158,28 @@ export default async function decorate(block) {
     statusEl.textContent = '';
 
     const payload = Object.fromEntries(new FormData(form).entries());
+    const token =  localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     try {
       const res = await authFetch(`${API_BASE}/update-profile`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'token': token },
         body: JSON.stringify(payload),
       });
 
       const result = await res.json().catch(() => ({}));
-
-      if (res.ok) {
-        statusEl.className = 'profile-status profile-status--success';
-        statusEl.textContent = '✓ Profile updated successfully!';
-        // Update avatar initial if first name changed
-        const avatar = block.querySelector('.profile-avatar');
-        if (avatar) avatar.textContent = (payload.firstName || 'U')[0].toUpperCase();
-      } else {
-        statusEl.className = 'profile-status profile-status--error';
-        statusEl.textContent = `✗ ${result.error || result.message || 'Update failed. Please try again.'}`;
-      }
+alert(JSON.stringify(result))
+console.log('Profile update response:', result);
+      // if (res.ok) {
+      //   statusEl.className = 'profile-status profile-status--success';
+      //   statusEl.textContent = '✓ Profile updated successfully!';
+      //   // Update avatar initial if first name changed
+      //   const avatar = block.querySelector('.profile-avatar');
+      //   if (avatar) avatar.textContent = (payload.firstName || 'U')[0].toUpperCase();
+      // } else {
+      //   statusEl.className = 'profile-status profile-status--error';
+      //   statusEl.textContent = `✗ ${result.error || result.message || 'Update failed. Please try again.'}`;
+      // }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Profile update error:', err);
@@ -185,7 +188,7 @@ export default async function decorate(block) {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Save Changes';
-      statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 

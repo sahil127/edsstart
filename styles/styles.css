@@ -366,3 +366,12 @@ main .section.center form input {
   width: 100%;
   box-sizing: border-box;
 }
+
+main .project-overview picture>img {
+  width: 100%;
+  height: 45vh;
+}
+
+main .section p>strong {
+font-size: xx-large;  
+}

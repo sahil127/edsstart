@@ -2,13 +2,22 @@ import { setTokens } from '../../scripts/auth.js';
 
 export default async function decorate(block) {
   const form = block.querySelector('form');
-  
+
+  if (!form) return;
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const emailField = form.elements.email || form.elements.username;
     const payload = {
-      username: form.elements.username.value,
-      password: form.elements.password.value,
+      email: emailField ? emailField.value : '',
+      password: form.elements.password ? form.elements.password.value : '',
     };
+
+    if (!payload.email || !payload.password) {
+      alert('Please enter your email and password.');
+      return;
+    }
 
     const res = await fetch('http://localhost:3001/api/login', {
       method: 'POST',
@@ -17,11 +26,13 @@ export default async function decorate(block) {
     });
 
     if (res.ok) {
-      const { accessToken, refreshToken } = await res.json();
-      setTokens(accessToken, refreshToken);
-      window.location.href = '/dashboard'; // Redirect after login
+      const data = await res.json();
+      const token = data.accessToken || data.token;
+      setTokens(token, data.refreshToken);
+      window.location.href = '/dashboard';
     } else {
-      alert('Login failed');
+      const error = await res.json().catch(() => ({}));
+      alert(error.message || 'Login failed');
     }
   });
 }

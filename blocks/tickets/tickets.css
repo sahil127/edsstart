@@ -1,11 +1,24 @@
-/* Container & Table Layout */
+/* Container & Shadow Card Elevation */
+.tickets-list {
+  margin-top: 2rem;
+  padding: 2rem;
+    background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(0, 82, 204, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 90%, rgba(76, 154, 255, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(244, 245, 247, 0.5) 0px, transparent 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
 .ticket-list-wrapper {
   width: 100%;
-  overflow-x: auto;
-  margin: 2rem 0;
-  border: 1px solid #dfe1e6;
-  border-radius: 8px;
+  max-width: 1100px;
+  margin: 2rem auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(9, 30, 66, 0.08), 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .jira-ticket-table {
@@ -16,69 +29,122 @@
   text-align: left;
 }
 
+/* Header Row Refinements */
 .jira-ticket-table th {
-  background-color: #f4f5f7;
-  color: #5e6c84;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-bottom: 2px solid #dfe1e6;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.725rem;
+  letter-spacing: 0.6px;
 }
 
+/* Row & Cell Treatments */
 .jira-ticket-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #ebecf0;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
+  color: #334155;
+  transition: background-color 0.15s ease;
+}
+
+.jira-ticket-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .jira-ticket-table tbody tr:hover {
-  background-color: #f4f5f7;
+  background-color: #f8fafc;
 }
 
-/* Specific Cell Formatting */
+/* Monospace Ticket Key & Summary Typography */
 .ticket-key {
   color: #0052cc;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, SF Pro Mono, Menlo, monospace;
+  font-size: 0.8125rem;
   white-space: nowrap;
 }
 
 .ticket-summary {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .summary-text {
-  font-weight: 500;
-  color: #172b4d;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.875rem;
 }
 
 .reporter-email {
   font-size: 0.75rem;
-  color: #6b778c;
+  color: #64748b;
 }
 
 .ticket-date {
-  color: #6b778c;
+  color: #64748b;
+  font-size: 0.8125rem;
   white-space: nowrap;
 }
 
-/* Status & Metadata Badges */
+/* Rounded Pill Badge System */
 .badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
+  letter-spacing: 0.4px;
   white-space: nowrap;
 }
 
 /* Status Colors */
-.badge.status-open { background-color: #deebff; color: #0747a6; }
-.badge.status-in-progress { background-color: #fff0b3; color: #172b4d; }
-.badge.status-resolved { background-color: #e3fcef; color: #006644; }
+.badge.status-open { background-color: #eff6ff; color: #1d4ed8; }
+.badge.status-in-progress { background-color: #fefce8; color: #a16207; }
+.badge.status-resolved { background-color: #dcfce7; color: #15803d; }
+.badge.status-closed { background-color: #f1f5f9; color: #475569; }
 
 /* Priority Colors */
-.badge.priority-highest, .badge.priority-high { background-color: #ffebe6; color: #bf2600; }
-.badge.priority-medium { background-color: #fff0b3; color: #ff8b00; }
-.badge.priority-low { background-color: #e3fcef; color: #006644; }
+.badge.priority-highest, 
+.badge.priority-high { background-color: #fef2f2; color: #b91c1c; }
+.badge.priority-medium { background-color: #fffbeb; color: #b45309; }
+.badge.priority-low { background-color: #f0fdf4; color: #15803d; }
+
+/* Custom Native Dropdown Control */
+.status-dropdown {
+  appearance: none;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%3C64748B' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  color: #334155;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.status-dropdown:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.status-dropdown:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.15);
+}
+p>strong{
+      margin-left: 60px;
+    font-size: larger;
+}

@@ -62,28 +62,27 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 /**
- * loads and decorates the header, mainly the nav
- * @param {Element} block The header block element
+ * loads and decorates the headers block
+ * @param {Element} block The headers block element
  */
 export default async function decorate(block) {
   const token = getAccessToken();
   const isLoggedIn = Boolean(token);
 
-  // 1. Fetch nav content
-  const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-
   try {
-    const resp = await fetch(`${navPath}.plain.html`);
-    if (!resp.ok) return;
-    const html = await resp.text();
+    // If the block is an empty header placeholder, fetch nav content
+    if (!block.textContent.trim()) {
+      const navMeta = getMetadata('nav');
+      const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+      const resp = await fetch(`${navPath}.plain.html`);
+      if (resp.ok) {
+        const html = await resp.text();
+        block.innerHTML = html;
+      }
+    }
 
-    const nav = document.createElement('nav');
-    nav.id = 'nav';
-    nav.innerHTML = html;
-
-    // 2. Dropdown Implementation (Handles Ticket and any list with sub-lists)
-    const allLis = Array.from(nav.querySelectorAll('li'));
+    // 1. Dropdown Implementation (Handles Ticket and any list with sub-lists)
+    const allLis = Array.from(block.querySelectorAll('li'));
     allLis.forEach((li) => {
       const parentUl = li.closest('ul');
       const siblingList = parentUl ? parentUl.nextElementSibling : null;
@@ -101,7 +100,7 @@ export default async function decorate(block) {
     });
 
     // Setup click events on dropdowns
-    const dropdownItems = nav.querySelectorAll('.ticket-dropdown, .nav-drop');
+    const dropdownItems = block.querySelectorAll('.ticket-dropdown, .nav-drop');
     dropdownItems.forEach((dropLi) => {
       dropLi.addEventListener('click', (e) => {
         if (e.target.closest('a')) return;
@@ -122,7 +121,7 @@ export default async function decorate(block) {
       });
     });
 
-    // 3. Strict Authentication-Based Navigation Visibility
+    // 2. Strict Authentication-Based Navigation Visibility
     const isLoginOrSignup = (text) => {
       const t = (text || '').trim().toLowerCase();
       return t === 'login'
@@ -141,7 +140,7 @@ export default async function decorate(block) {
     };
 
     // Process all paragraphs <p> (e.g. Index, Signup, Login, Logout)
-    nav.querySelectorAll('p').forEach((p) => {
+    block.querySelectorAll('p').forEach((p) => {
       const text = p.textContent.trim().toLowerCase();
       if (!text) return;
 
@@ -168,7 +167,7 @@ export default async function decorate(block) {
     });
 
     // Process all top-level list items <li> (e.g. Ticket dropdown)
-    nav.querySelectorAll('li').forEach((li) => {
+    block.querySelectorAll('li').forEach((li) => {
       if (li.closest('.ticket-dropdown > ol, .ticket-dropdown > ul')) return;
 
       const clone = li.cloneNode(true);
@@ -199,7 +198,7 @@ export default async function decorate(block) {
     });
 
     // Hide any <ul> whose list items are all hidden
-    nav.querySelectorAll('ul').forEach((ul) => {
+    block.querySelectorAll('ul').forEach((ul) => {
       if (ul.closest('.ticket-dropdown') && ul.parentElement.tagName === 'LI') return;
       const visibleLis = [...ul.querySelectorAll(':scope > li')].filter((li) => !li.classList.contains('auth-hidden'));
       if (visibleLis.length === 0) {
@@ -208,27 +207,8 @@ export default async function decorate(block) {
         ul.classList.remove('auth-hidden');
       }
     });
-
-    // 4. Mobile Hamburger Controls
-    const navSections = nav.querySelector('.nav-sections');
-    const hamburger = document.createElement('div');
-    hamburger.classList.add('nav-hamburger');
-    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-        <span class="nav-hamburger-icon"></span>
-      </button>`;
-    hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-    nav.prepend(hamburger);
-    nav.setAttribute('aria-expanded', 'false');
-
-    toggleMenu(nav, navSections, isDesktop.matches);
-    isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
-
-    const navWrapper = document.createElement('div');
-    navWrapper.className = 'nav-wrapper';
-    navWrapper.append(nav);
-    block.replaceChildren(navWrapper);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Header decoration error:', error);
+    console.error('Headers decoration error:', error);
   }
 }

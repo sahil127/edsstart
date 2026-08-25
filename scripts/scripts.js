@@ -11,6 +11,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
+import { getAccessToken } from './auth.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -35,6 +36,38 @@ if (window.trustedTypes && window.trustedTypes.createPolicy) {
     createScriptURL: (input) => input,
     createScript: (input) => input,
   });
+}
+
+function normalizePath(pathname) {
+  return pathname.replace(/\/+$/, '') || '/';
+}
+
+function isAuthRoute(pathname) {
+  const norm = normalizePath(pathname).toLowerCase();
+  return norm === '/login'
+    || norm.startsWith('/login/')
+    || norm === '/signup'
+    || norm.startsWith('/signup/')
+    || norm.includes('/login')
+    || norm.includes('/signup');
+}
+
+function enforceAuthGate() {
+  const token = getAccessToken();
+  const isLoggedIn = Boolean(token);
+  const pathname = normalizePath(window.location.pathname);
+
+  // If user is LOGGED IN and tries to access login or signup pages:
+  if (isLoggedIn && isAuthRoute(pathname)) {
+    window.location.replace('/dashboard');
+    return;
+  }
+
+  // If user is NOT LOGGED IN and tries to access protected pages:
+  const isPublicPage = pathname === '/' || pathname === '/index' || isAuthRoute(pathname);
+  if (!isLoggedIn && !isPublicPage) {
+    window.location.replace('/login');
+  }
 }
 
 /**
@@ -95,6 +128,14 @@ function buildAutoBlocks(main) {
           }
         });
       });
+    }
+    if (window.location.pathname.endsWith('/profile')) {
+      // Create the block wrapper div
+      const profileBlock = document.createElement('div');
+      profileBlock.classList.add('profile');
+      console.log('Profile block created:', profileBlock);
+      // Append it to <main>
+      main.append(profileBlock);
     }
     buildWidgetAutoBlocks(main);
   } catch (error) {
@@ -216,6 +257,7 @@ function loadDelayed() {
 }
 
 async function loadPage() {
+  enforceAuthGate();
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
